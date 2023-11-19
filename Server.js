@@ -1,32 +1,32 @@
 const express=require('express')
 const dotenv=require('dotenv')
+const morgan=require('morgan')
+const color=require('colors')
+const connectDB=require('./config/db')
 
-
+//LOAD ENV VARS
 dotenv.config({path:'./config/config.env'})
+
+connectDB()
 
 const app=express()
 
-app.get('/api/v1/bootcamps',(req,res)=>{
-    res.status(200).json({sucess:true ,msg:'get all bootcamps'})
-})
+app.use(express.json())
 
-app.get('/api/v1/bootcamps/:id',(req,res)=>{
-    res.status(200).json({sucess:true ,msg:`get bootcamp${req.params.id}`})
-})
+//DEV LOGGING MIDDLEWEAR
+if(process.env.NODE_ENV==='development'){
+app.use(morgan('dev'))
+}
 
-app.post('/api/v1/bootcamps/',(req,res)=>{
-    res.status(200).json({sucess:true ,msg:'create new bootcamps'})
-})
+//ROUTER FILE
+const bootcamps=require('./router/bootcamps')
 
-app.put('/api/v1/bootcamps/:id',(req,res)=>{
-    res.status(200).json({sucess:true ,msg:`update bootcamp ${req.params.id}`})
-})
+//MOUNT ROUTER
+app.use('/api/v1/bootcamps',bootcamps)
 
-app.delete('/api/v1/bootcamps/:id',(req,res)=>{
-    res.status(200).json({sucess:true ,msg:`delete bootcamp ${req.params.id}`})
-})
+
 const PORT=process.env.PORT||5000
 
 
-app.listen(PORT,console.log(`server running in ${process.env.NODE_ENV}mode on  port ${PORT}`))
+app.listen(PORT,console.log(`server running in ${process.env.NODE_ENV}mode on  port ${PORT}`.yellow.bold))
 
